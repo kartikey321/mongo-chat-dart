@@ -2,9 +2,9 @@ import 'package:mongo_chat_dart/src/models/data_filter.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 class MongoHelper {
-  late Db db;
+  late Db _db;
   MongoHelper(String mongoUrl) {
-    db = Db(mongoUrl);
+    _db = Db(mongoUrl);
   }
   SelectorBuilder? _processFilters(
       List<BasicDataFilter> filters, DataFilterWrapperType type,
@@ -49,11 +49,11 @@ class MongoHelper {
   }
 
   initialize() async {
-    await db.open();
+    await _db.open();
   }
 
   Future<void> _checkDB() async {
-    if (!db.isConnected) {
+    if (!_db.isConnected) {
       initialize();
     }
   }
@@ -61,19 +61,19 @@ class MongoHelper {
   Future<void> addData(String collectionName, Map<String, dynamic> data) async {
     await _checkDB();
     try {
-      var res = await db.collection(collectionName).insertOne(data);
+      var res = await _db.collection(collectionName).insertOne(data);
     } catch (e) {
       print(e);
     }
   }
 
-  Future<List<Map<String, dynamic>>> getData(
-      String collectionName, List<DataFilterWrapper>? filters) async {
+  Future<List<Map<String, dynamic>>> getData(String collectionName,
+      {List<DataFilterWrapper>? filters}) async {
     await _checkDB();
     var processedFilter = (filters != null && filters.isNotEmpty)
         ? _processFilters(filters, DataFilterWrapperType.and)
         : null;
-    return await db.collection(collectionName).find(processedFilter).toList();
+    return await _db.collection(collectionName).find(processedFilter).toList();
   }
 
   Stream<dynamic> getDataStream(String collectionName,
@@ -81,25 +81,25 @@ class MongoHelper {
     var processedFilter = (filters != null && filters.isNotEmpty)
         ? _processFilters(filters, DataFilterWrapperType.and)
         : null;
-    return db.collection(collectionName).find(processedFilter);
+    return _db.collection(collectionName).find(processedFilter);
   }
 
   Future<Map<String, dynamic>?> getSingleDocument(
       String collectionName, String docId) async {
     var res =
-        db.collection(collectionName).findOne(where.id(ObjectId.parse(docId)));
+        _db.collection(collectionName).findOne(where.id(ObjectId.parse(docId)));
     return res;
   }
 
   Stream<Map<String, dynamic>> getSingleDocumentStream(
       String collectionName, String docId) {
     var res =
-        db.collection(collectionName).find(where.id(ObjectId.parse(docId)));
+        _db.collection(collectionName).find(where.id(ObjectId.parse(docId)));
     return res;
   }
 
   Future<void> deleteDocument(String collectionName, String docId) async {
-    await db
+    await _db
         .collection(collectionName)
         .deleteOne(where.id(ObjectId.parse(docId)));
   }

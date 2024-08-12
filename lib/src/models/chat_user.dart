@@ -3,8 +3,8 @@ import 'dart:convert';
 
 abstract class DataModel<T> {
   DataModel();
-  Map toMap() => {};
-  T fromMap(Map<String, dynamic> map);
+
+  Map<String, dynamic> toMap() => {};
 }
 
 class ChatUser extends DataModel<ChatUser> {

@@ -1,16 +1,15 @@
 import 'package:mongo_chat_dart/src/helpers/mongo_helper.dart';
+import 'package:mongo_chat_dart/src/models/chat_user.dart';
 import 'package:mongo_chat_dart/src/models/data_filter.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
-class DataHelper<T> {
+class GenericDataController<T extends DataModel> {
   MongoHelper mongoHelper;
   String collectionName;
   final T Function(Map<String, dynamic> map) fromMap;
-  final Map<String, dynamic> Function(T data) toMap;
-  DataHelper(
+  GenericDataController(
       {required this.collectionName,
       required this.fromMap,
-      required this.toMap,
       required this.mongoHelper});
   Stream<List<T>> _convertStream(
     Stream<dynamic> sourceStream,
@@ -28,7 +27,7 @@ class DataHelper<T> {
 
   Future<mongo.ObjectId> addData(T data) async {
     mongo.ObjectId fieldKey = mongo.ObjectId();
-    await mongoHelper.addData(collectionName, toMap(data));
+    await mongoHelper.addData(collectionName, data.toMap());
     return fieldKey;
   }
 
