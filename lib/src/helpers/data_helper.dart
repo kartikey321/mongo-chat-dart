@@ -25,16 +25,38 @@ class GenericDataController<T extends DataModel> {
     }
   }
 
-  Future<mongo.ObjectId> addData(T data) async {
+  Future<String> addData(T data) async {
     mongo.ObjectId fieldKey = mongo.ObjectId();
     await mongoHelper.addData(collectionName, data.toMap());
-    return fieldKey;
+    return fieldKey.oid;
+  }
+
+  Future<void> updateData(dynamic update, String id) async {
+    await mongoHelper.updateDocument(collectionName, update, id);
   }
 
   Future<List<T>> getData({List<DataFilterWrapper>? filters}) async =>
       mongoHelper
           .getData(collectionName, filters: filters)
           .then((value) => value.map((e) => fromMap(e)).toList());
+
+  Future<List<T>> getDataFromIds(List<String> ids) async => getData(filters: [
+        DataFilterWrapper(filterType: DataFilterWrapperType.and, filters: [
+          DataFilter(
+              fieldName: '_id',
+              value: ids.map((e) => mongo.ObjectId.parse(e)).toList(),
+              filterType: DataFilterType.arrayContains)
+        ])
+      ]);
+  Stream<List<T>> getDataStreamFromIds(List<String> ids) =>
+      getDataStream(filters: [
+        DataFilterWrapper(filterType: DataFilterWrapperType.and, filters: [
+          DataFilter(
+              fieldName: '_id',
+              value: ids.map((e) => mongo.ObjectId.parse(e)).toList(),
+              filterType: DataFilterType.arrayContains)
+        ])
+      ]);
   Stream<List<T>> getDataStream({List<DataFilterWrapper>? filters}) =>
       _convertStream(
           mongoHelper.getDataStream(collectionName, filters: filters), fromMap);
@@ -42,7 +64,7 @@ class GenericDataController<T extends DataModel> {
   Future<T?> getSingleDocument(String docId) async => mongoHelper
       .getSingleDocument(collectionName, docId)
       .then((value) => value != null ? fromMap(value) : null);
-  Stream<T?> getSingleDocumentStream(String docId) => mongoHelper
+  Stream<T> getSingleDocumentStream(String docId) => mongoHelper
       .getSingleDocumentStream(collectionName, docId)
       .map((data) => fromMap(data));
 

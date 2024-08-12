@@ -84,6 +84,13 @@ class MongoHelper {
     return _db.collection(collectionName).find(processedFilter);
   }
 
+  Future<void> updateDocument(
+      String collectionName, dynamic update, String id) async {
+    _db
+        .collection(collectionName)
+        .update(where.id(ObjectId.fromHexString(id)), update);
+  }
+
   Future<Map<String, dynamic>?> getSingleDocument(
       String collectionName, String docId) async {
     var res =

@@ -1,30 +1,37 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-abstract class DataModel<T> {
-  DataModel();
+import 'package:collection/collection.dart';
 
-  Map<String, dynamic> toMap() => {};
+import 'package:mongo_chat_dart/src/models/dm_model.dart';
+import 'package:mongo_chat_dart/src/models/room_model.dart';
+
+abstract class DataModel<T> {
+  Map<String, dynamic> toMap();
 }
 
 class ChatUser extends DataModel<ChatUser> {
   String id;
   String name;
-  String dpUrl;
-  String bio;
-  String phoneNo;
-  String emailId;
-  DateTime lastSeen;
-  String userName;
+  String? dpUrl;
+  String? bio;
+  String? phoneNo;
+  String? emailId;
+  DateTime? lastSeen;
+  String? userName;
+  List<String> dmRooms;
+  List<String> rooms;
   ChatUser({
     required this.id,
     required this.name,
-    required this.dpUrl,
-    required this.bio,
-    required this.phoneNo,
-    required this.emailId,
-    required this.lastSeen,
-    required this.userName,
+    this.dpUrl,
+    this.bio,
+    this.phoneNo,
+    this.emailId,
+    this.lastSeen,
+    this.userName,
+    required this.dmRooms,
+    required this.rooms,
   });
 
   ChatUser copyWith({
@@ -36,6 +43,8 @@ class ChatUser extends DataModel<ChatUser> {
     String? emailId,
     DateTime? lastSeen,
     String? userName,
+    List<String>? dmRooms,
+    List<String>? rooms,
   }) {
     return ChatUser(
       id: id ?? this.id,
@@ -46,10 +55,11 @@ class ChatUser extends DataModel<ChatUser> {
       emailId: emailId ?? this.emailId,
       lastSeen: lastSeen ?? this.lastSeen,
       userName: userName ?? this.userName,
+      dmRooms: dmRooms ?? this.dmRooms,
+      rooms: rooms ?? this.rooms,
     );
   }
 
-  @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
@@ -58,8 +68,10 @@ class ChatUser extends DataModel<ChatUser> {
       'bio': bio,
       'phoneNo': phoneNo,
       'emailId': emailId,
-      'lastSeen': lastSeen.toIso8601String(),
+      'lastSeen': lastSeen?.toIso8601String(),
       'userName': userName,
+      'dmRooms': dmRooms,
+      'rooms': rooms,
     };
   }
 
@@ -67,12 +79,20 @@ class ChatUser extends DataModel<ChatUser> {
     return ChatUser(
       id: map['id'] as String,
       name: map['name'] as String,
-      dpUrl: map['dpUrl'] as String,
-      bio: map['bio'] as String,
-      phoneNo: map['phoneNo'] as String,
-      emailId: map['emailId'] as String,
-      lastSeen: DateTime.parse(map['lastSeen'] as String),
-      userName: map['userName'] as String,
+      dpUrl: map['dpUrl'] != null ? map['dpUrl'] as String : null,
+      bio: map['bio'] != null ? map['bio'] as String : null,
+      phoneNo: map['phoneNo'] != null ? map['phoneNo'] as String : null,
+      emailId: map['emailId'] != null ? map['emailId'] as String : null,
+      lastSeen: map['lastSeen'] != null
+          ? DateTime.parse(map['lastSeen'] as String)
+          : null,
+      userName: map['userName'] != null ? map['userName'] as String : null,
+      dmRooms: List<String>.from(
+        (map['dmRooms'] as List<String>),
+      ),
+      rooms: List<String>.from(
+        (map['rooms'] as List<String>),
+      ),
     );
   }
 
@@ -83,12 +103,13 @@ class ChatUser extends DataModel<ChatUser> {
 
   @override
   String toString() {
-    return 'ChatUser(id: $id, name: $name, dpUrl: $dpUrl, bio: $bio, phoneNo: $phoneNo, emailId: $emailId, lastSeen: $lastSeen, userName: $userName)';
+    return 'ChatUser(id: $id, name: $name, dpUrl: $dpUrl, bio: $bio, phoneNo: $phoneNo, emailId: $emailId, lastSeen: $lastSeen, userName: $userName, dmRooms: $dmRooms, rooms: $rooms)';
   }
 
   @override
   bool operator ==(covariant ChatUser other) {
     if (identical(this, other)) return true;
+    final listEquals = const DeepCollectionEquality().equals;
 
     return other.id == id &&
         other.name == name &&
@@ -97,7 +118,9 @@ class ChatUser extends DataModel<ChatUser> {
         other.phoneNo == phoneNo &&
         other.emailId == emailId &&
         other.lastSeen == lastSeen &&
-        other.userName == userName;
+        other.userName == userName &&
+        listEquals(other.dmRooms, dmRooms) &&
+        listEquals(other.rooms, rooms);
   }
 
   @override
@@ -109,9 +132,8 @@ class ChatUser extends DataModel<ChatUser> {
         phoneNo.hashCode ^
         emailId.hashCode ^
         lastSeen.hashCode ^
-        userName.hashCode;
+        userName.hashCode ^
+        dmRooms.hashCode ^
+        rooms.hashCode;
   }
-
-  @override
-  ChatUser fromMap(Map<String, dynamic> map) => ChatUser.fromMap(map);
 }
