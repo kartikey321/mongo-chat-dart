@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:mongo_chat_dart/src/models/chat_user.dart';
 
-class ReadBy extends DataModel<ReadBy> {
+class ReadBy  {
   String userId;
   DateTime timeStamp;
   ReadBy({
@@ -53,4 +53,6 @@ class ReadBy extends DataModel<ReadBy> {
 
   @override
   int get hashCode => userId.hashCode ^ timeStamp.hashCode;
+  
+
 }

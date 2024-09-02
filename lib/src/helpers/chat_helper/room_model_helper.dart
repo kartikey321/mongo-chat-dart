@@ -1,88 +1,104 @@
 import 'package:mongo_chat_dart/src/helpers/chat_helper/message_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/controllers/controllers.dart';
 import 'package:mongo_chat_dart/src/helpers/mongo_helper.dart';
+import 'package:mongo_chat_dart/src/helpers/mongo_setup.dart';
 import 'package:mongo_chat_dart/src/models/chat_user.dart';
 import 'package:mongo_chat_dart/src/models/message.dart';
 import 'package:mongo_chat_dart/src/models/room_model.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 class RoomModelHelper {
-  static Future<String> createRoom(
-          MongoHelper mongoHelper, RoomModel roomModel) async =>
-      await RoomModelController(mongoHelper: mongoHelper).addData(roomModel);
-  Future<void> addParticipants(
-      List<ChatUser> users, String roomId, MongoHelper mongoHelper) async {
-    var update = mongo.modify.pullAll('allParticipants',
-        users.map((e) => mongo.ObjectId.fromHexString(e.id)).toList());
-    await RoomModelController(mongoHelper: mongoHelper)
+  final MongoConfig _mongoConfig;
+
+  // Constructor to initialize the _mongoConfig
+  RoomModelHelper(this._mongoConfig);
+
+  Future<void> createIndex() async =>
+      await RoomModelController(mongoConfig: _mongoConfig).createIndex();
+
+  Future<String> createRoom(RoomModel roomModel,) async {
+    return await RoomModelController(mongoConfig: _mongoConfig)
+        .addData(roomModel,docId: roomModel.id);
+  }
+
+  Future<void> addParticipants(List<ChatUser> users, String roomId) async {
+    var update = mongo.modify.pullAll(
+      'allParticipants',
+      users.map((e) => mongo.ObjectId.fromHexString(e.id)).toList(),
+    );
+    await RoomModelController(mongoConfig: _mongoConfig)
         .updateData(update, roomId);
   }
 
-  static Future<List<Message>> getMessages(
-      MongoHelper mongoHelper, String roomId) async {
-    var room = await getRoom(mongoHelper, roomId);
+  Future<List<Message>> getMessages(String roomId) async {
+    var room = await getRoom(roomId);
     if (room == null) {
-      throw Exception('The given roomId does not exits');
+      throw Exception('The given roomId does not exist');
     }
-    return await MessageHelper.getMessages(mongoHelper, room.messageIds);
+    return await MessageHelper(_mongoConfig).getMessages(room.messageIds);
   }
 
-  static Stream<List<Message>> getMessagesStream(
-      MongoHelper mongoHelper, String roomId) async* {
-    var room = await getRoom(mongoHelper, roomId);
+  Stream<List<Message>> getMessagesStream(String roomId) async* {
+    var room = await getRoom(roomId);
     if (room == null) {
-      throw Exception('The given roomId does not exits');
+      throw Exception('The given roomId does not exist');
     }
-    yield* MessageHelper.getMessagesStream(mongoHelper, room.messageIds);
+    yield* MessageHelper(_mongoConfig).getMessagesStream(room.messageIds);
   }
 
-  static Future<List<RoomModel>> getRooms(
-          List<String> roomIds, MongoHelper mongoHelper) async =>
-      await RoomModelController(mongoHelper: mongoHelper)
-          .getDataFromIds(roomIds);
-  static Stream<List<RoomModel>> getRoomsStream(
-          List<String> roomIds, MongoHelper mongoHelper) =>
-      RoomModelController(mongoHelper: mongoHelper)
-          .getDataStreamFromIds(roomIds);
-  static Future<RoomModel?> getRoom(MongoHelper mongoHelper, String id) async =>
-      await RoomModelController(mongoHelper: mongoHelper).getSingleDocument(id);
-  Stream<RoomModel> getRoomStream(MongoHelper mongoHelper, String id) =>
-      RoomModelController(mongoHelper: mongoHelper).getSingleDocumentStream(id);
+  Future<List<RoomModel>> getRooms(List<String> roomIds) async {
+    return await RoomModelController(mongoConfig: _mongoConfig)
+        .getDataFromIds(roomIds);
+  }
 
-  static Future<void> addMessage(
-      MongoHelper mongoHelper, Message message, String roomId) async {
-    String id = await MessageHelper.addMessage(mongoHelper, message);
+  Stream<List<RoomModel>> getRoomsStream(List<String> roomIds) {
+    return RoomModelController(mongoConfig: _mongoConfig)
+        .getDataStreamFromIds(roomIds);
+  }
+
+  Future<RoomModel?> getRoom(String id) async {
+    return await RoomModelController(mongoConfig: _mongoConfig)
+        .getSingleDocument(id);
+  }
+
+  Stream<RoomModel> getRoomStream(String id) {
+    return RoomModelController(mongoConfig: _mongoConfig)
+        .getSingleDocumentStream(id);
+  }
+
+  Future<void> addMessage(Message message, String roomId) async {
+    String id = await MessageHelper(_mongoConfig).addMessage(message);
     var update = mongo.modify.push('messageIds', id);
-    await RoomModelController(mongoHelper: mongoHelper)
+    await RoomModelController(mongoConfig: _mongoConfig)
         .updateData(update, roomId);
   }
 
-  static Future<void> addOrUpdateDescription(
-      String description, String roomId, MongoHelper mongoHelper) async {
+  Future<void> addOrUpdateDescription(String description, String roomId) async {
     var update = mongo.modify.set('description', description);
-    RoomModelController(mongoHelper: mongoHelper).updateData(update, roomId);
+    await RoomModelController(mongoConfig: _mongoConfig)
+        .updateData(update, roomId);
   }
 
-  static Future<void> addAdmin(String userId, String targetUserId,
-      String roomId, MongoHelper mongoHelper) async {
-    var room = await getRoom(mongoHelper, roomId);
+  Future<void> addAdmin(
+      String userId, String targetUserId, String roomId) async {
+    var room = await getRoom(roomId);
     if (room == null) {
-      throw Exception('The given roomId does not exits');
+      throw Exception('The given roomId does not exist');
     }
-    if (!(room.admins.contains(userId))) {
+    if (!room.admins.contains(userId)) {
       throw Exception('Current user does not have permission to add admin');
     }
     if (!room.allParticipants.contains(userId)) {
       throw Exception('Current user is not a part of this group');
     }
-    if (!room.admins.contains(targetUserId)) {
+    if (room.admins.contains(targetUserId)) {
       throw Exception('Target user is already added as admin');
     }
     if (!room.allParticipants.contains(targetUserId)) {
       throw Exception('Target user is not a part of this group');
     }
     var update = mongo.modify.push('admins', targetUserId);
-    await RoomModelController(mongoHelper: mongoHelper)
+    await RoomModelController(mongoConfig: _mongoConfig)
         .updateData(update, roomId);
   }
 }

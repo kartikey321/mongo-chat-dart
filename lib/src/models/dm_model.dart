@@ -3,20 +3,28 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:mongo_chat_dart/src/models/chat_user.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
-class DmModel extends DataModel<DmModel> {
+class DmModel extends DataModel {
   String id;
   String participant1Id;
   String participant2Id;
   DateTime createdOn;
   List<String> messageIds;
   DmModel({
-    required this.id,
+  
     required this.participant1Id,
     required this.participant2Id,
     required this.createdOn,
     required this.messageIds,
-  });
+  }):id =  ObjectId().oid;
+  DmModel._internal({
+    String? id,
+    required this.participant1Id,
+    required this.participant2Id,
+    required this.createdOn,
+    required this.messageIds,
+  }):id = id ?? ObjectId().oid;
 
   DmModel copyWith({
     String? id,
@@ -25,7 +33,7 @@ class DmModel extends DataModel<DmModel> {
     DateTime? createdOn,
     List<String>? messageIds,
   }) {
-    return DmModel(
+    return DmModel._internal(
       id: id ?? this.id,
       participant1Id: participant1Id ?? this.participant1Id,
       participant2Id: participant2Id ?? this.participant2Id,
@@ -46,13 +54,13 @@ class DmModel extends DataModel<DmModel> {
   }
 
   factory DmModel.fromMap(Map<String, dynamic> map) {
-    return DmModel(
+    return DmModel._internal(
       id: map['id'] as String,
       participant1Id: map['participant1Id'] as String,
       participant2Id: map['participant2Id'] as String,
       createdOn: DateTime.parse(map['createdOn'] as String),
       messageIds: List<String>.from(
-        (map['messageIds'] as List<String>),
+        (map['messageIds'] as List),
       ),
     );
   }
@@ -87,4 +95,7 @@ class DmModel extends DataModel<DmModel> {
         createdOn.hashCode ^
         messageIds.hashCode;
   }
+
+  static
+  Map<String, bool> createIndex() => {"id": true};
 }

@@ -3,8 +3,9 @@ import 'dart:convert';
 
 import 'package:mongo_chat_dart/src/models/chat_user.dart';
 import 'package:mongo_chat_dart/src/models/message_document.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
-class Message extends DataModel<Message> {
+class Message extends DataModel {
   String text;
   String id;
   DateTime sentAt;
@@ -13,11 +14,18 @@ class Message extends DataModel<Message> {
   ChatUser sentBy;
   Message({
     required this.text,
-    required this.id,
+   
     required this.sentAt,
     this.replyToMessageId,
     required this.sentBy,
-  });
+  }):id =  ObjectId().oid;
+  Message._internal({
+    required this.text,
+    String? id,
+    required this.sentAt,
+    this.replyToMessageId,
+    required this.sentBy,
+  }):id = id ?? ObjectId().oid;
 
   Message copyWith({
     String? text,
@@ -26,7 +34,7 @@ class Message extends DataModel<Message> {
     String? replyToMessageId,
     ChatUser? sentBy,
   }) {
-    return Message(
+    return Message._internal(
       text: text ?? this.text,
       id: id ?? this.id,
       sentAt: sentAt ?? this.sentAt,
@@ -47,7 +55,7 @@ class Message extends DataModel<Message> {
   }
 
   factory Message.fromMap(Map<String, dynamic> map) {
-    return Message(
+    return Message._internal(
       text: map['text'] as String,
       id: map['id'] as String,
       sentAt: DateTime.parse(map['sentAt'] as String),
@@ -87,4 +95,7 @@ class Message extends DataModel<Message> {
         replyToMessageId.hashCode ^
         sentBy.hashCode;
   }
+
+  
+  static Map<String, bool> createIndex() => {"id": true};
 }

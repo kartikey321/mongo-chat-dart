@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:mongo_chat_dart/src/models/chat_user.dart';
 import 'package:mongo_chat_dart/src/models/readby.dart';
 
-class MessageReadBy extends DataModel<MessageReadBy> {
+class MessageReadBy extends DataModel {
   String messageId;
   List<ReadBy> readByList;
   MessageReadBy({
@@ -62,4 +62,6 @@ class MessageReadBy extends DataModel<MessageReadBy> {
 
   @override
   int get hashCode => messageId.hashCode ^ readByList.hashCode;
+
+  static Map<String, bool> createIndex() => {"messageId": true};
 }

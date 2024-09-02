@@ -1,26 +1,28 @@
+import 'package:mongo_chat_dart/src/helpers/mongo_setup.dart';
 import 'package:mongo_chat_dart/src/models/data_filter.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 class MongoHelper {
   late Db _db;
-  MongoHelper(String mongoUrl) {
-    _db = Db(mongoUrl);
+  MongoHelper(MongoConfig mongoConfig) {
+    _db = mongoConfig.getInstance();
   }
   SelectorBuilder? _processFilters(
       List<BasicDataFilter> filters, DataFilterWrapperType type,
       {SelectorBuilder? selectorBuilder}) {
     List<SelectorBuilder?> builders = [];
+
     if (filters.isEmpty) {
       return null;
     }
     print(filters.runtimeType);
-    if (filters.every((e) => e is List<DataFilterWrapper>)) {
+    if (filters.every((e) => e is DataFilterWrapper)) {
       for (var e in filters) {
         if (e is DataFilterWrapper) {
           builders.add(_processFilters(e.filters, e.filterType));
         }
       }
-    } else if (filters.every((e) => e is List<DataFilter>)) {
+    } else if (filters.every((e) => e is DataFilter)) {
       for (var e in filters) {
         e = e as DataFilter;
         builders.add(switch (e.filterType) {
@@ -37,33 +39,49 @@ class MongoHelper {
         });
       }
     }
+    print('builders: ${builders.map((e) => e?.map.toString())}');
     builders.removeWhere((element) => element == null);
-    return builders.length < 2
-        ? builders[0]
-        : builders.sublist(1).fold(
-            builders[0],
-            (previousValue, element) => switch (type) {
-                  DataFilterWrapperType.or => previousValue!.or(element!),
-                  DataFilterWrapperType.and => previousValue!.and(element!),
-                });
-  }
-
-  initialize() async {
-    await _db.open();
+    return builders.isEmpty
+        ? null
+        : builders.length < 2
+            ? builders[0]
+            : builders.sublist(1).fold(
+                builders[0],
+                (previousValue, element) => switch (type) {
+                      DataFilterWrapperType.or => previousValue!.or(element!),
+                      DataFilterWrapperType.and => previousValue!.and(element!),
+                    });
   }
 
   Future<void> _checkDB() async {
     if (!_db.isConnected) {
-      initialize();
+      throw Exception('Mongo db isnt initialized!');
     }
   }
 
-  Future<void> addData(String collectionName, Map<String, dynamic> data) async {
+  Future<void> createIndex(
+      String collectionName, Map<String, bool> indexes) async {
+    await _checkDB();
+    try {
+      indexes.forEach((key, value) async =>
+          await _db.createIndex(collectionName, key: key, unique: value));
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<String?> addData(
+      String collectionName, Map<String, dynamic> data) async {
     await _checkDB();
     try {
       var res = await _db.collection(collectionName).insertOne(data);
+      
+      if(res.hasWriteErrors){
+        throw Exception(res.writeError?.errmsg);
+      }
     } catch (e) {
       print(e);
+      rethrow;
     }
   }
 
@@ -77,11 +95,14 @@ class MongoHelper {
   }
 
   Stream<dynamic> getDataStream(String collectionName,
-      {List<DataFilterWrapper>? filters}) {
+      {List<DataFilterWrapper>? filters}) async* {
     var processedFilter = (filters != null && filters.isNotEmpty)
         ? _processFilters(filters, DataFilterWrapperType.and)
         : null;
-    return _db.collection(collectionName).find(processedFilter);
+    print(processedFilter);
+    var res = _db.collection(collectionName).find(processedFilter);
+    print(res);
+    yield* res;
   }
 
   Future<void> updateDocument(
@@ -93,21 +114,26 @@ class MongoHelper {
 
   Future<Map<String, dynamic>?> getSingleDocument(
       String collectionName, String docId) async {
-    var res =
-        _db.collection(collectionName).findOne(where.id(ObjectId.parse(docId)));
+    print(collectionName);
+    print(ObjectId.isValidHexId(docId));
+    var res = await _db
+        .collection(collectionName)
+        .findOne(where.id(ObjectId.fromHexString(docId)));
+    print(res);
     return res;
   }
 
   Stream<Map<String, dynamic>> getSingleDocumentStream(
       String collectionName, String docId) {
-    var res =
-        _db.collection(collectionName).find(where.id(ObjectId.parse(docId)));
+    var res = _db
+        .collection(collectionName)
+        .find(where.id(ObjectId.fromHexString(docId)));
     return res;
   }
 
   Future<void> deleteDocument(String collectionName, String docId) async {
     await _db
         .collection(collectionName)
-        .deleteOne(where.id(ObjectId.parse(docId)));
+        .deleteOne(where.id(ObjectId.fromHexString(docId)));
   }
 }

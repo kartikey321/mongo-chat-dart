@@ -10,35 +10,35 @@ import 'package:mongo_chat_dart/src/utils/collection_names.dart';
 
 class ChatUserController extends GenericDataController<ChatUser> {
   ChatUserController({
-    required super.mongoHelper,
-  }) : super(fromMap: ChatUser.fromMap, collectionName: CollectionNames.USERS);
+    required super.mongoConfig,
+  }) : super(fromMap: ChatUser.fromMap, collectionName: CollectionNames.USERS,index: ChatUser.createIndex());
 }
 
 class MessageController extends GenericDataController<Message> {
   MessageController({
-    required super.mongoHelper,
+    required super.mongoConfig,
   }) : super(
-            fromMap: Message.fromMap, collectionName: CollectionNames.MESSAGES);
+            fromMap: Message.fromMap, collectionName: CollectionNames.MESSAGES,index: Message.createIndex());
 }
 
 class MessageReadByController extends GenericDataController<MessageReadBy> {
   MessageReadByController({
-    required super.mongoHelper,
+    required super.mongoConfig,
   }) : super(
             fromMap: MessageReadBy.fromMap,
-            collectionName: CollectionNames.READ_BY);
+            collectionName: CollectionNames.READ_BY,index: MessageReadBy.createIndex());
 }
 
 class DmModelController extends GenericDataController<DmModel> {
   DmModelController({
-    required super.mongoHelper,
-  }) : super(fromMap: DmModel.fromMap, collectionName: CollectionNames.DM_CHAT);
+    required super.mongoConfig,
+  }) : super(fromMap: DmModel.fromMap, collectionName: CollectionNames.DM_CHAT,index: DmModel.createIndex());
 }
 
 class RoomModelController extends GenericDataController<RoomModel> {
   RoomModelController({
-    required super.mongoHelper,
+    required super.mongoConfig,
   }) : super(
             fromMap: RoomModel.fromMap,
-            collectionName: CollectionNames.ROOM_CHAT);
+            collectionName: CollectionNames.ROOM_CHAT, index: RoomModel.createIndex());
 }

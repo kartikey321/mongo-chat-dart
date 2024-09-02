@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:mongo_chat_dart/src/models/chat_user.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
 class RoomModelConfig {
   bool allCanMessage;
@@ -49,7 +50,7 @@ class RoomModelConfig {
   int get hashCode => allCanMessage.hashCode;
 }
 
-class RoomModel extends DataModel<RoomModel> {
+class RoomModel extends DataModel {
   String id;
   String name;
   String createdBy;
@@ -59,7 +60,7 @@ class RoomModel extends DataModel<RoomModel> {
   List<String> allParticipants;
   List<String> messageIds;
   RoomModel({
-    required this.id,
+    String? id,
     required this.name,
     required this.createdBy,
     required this.createdAt,
@@ -67,7 +68,7 @@ class RoomModel extends DataModel<RoomModel> {
     required this.description,
     required this.allParticipants,
     required this.messageIds,
-  });
+  }):id = id ?? ObjectId().oid;
 
   RoomModel copyWith({
     String? id,
@@ -112,14 +113,14 @@ class RoomModel extends DataModel<RoomModel> {
       createdBy: map['createdBy'] as String,
       createdAt: map['createdAt'] as String,
       admins: List<String>.from(
-        (map['admins'] as List<String>),
+        (map['admins'] as List),
       ),
       description: map['description'] as String,
       allParticipants: List<String>.from(
-        (map['allParticipants'] as List<String>),
+        (map['allParticipants'] as List),
       ),
       messageIds: List<String>.from(
-        (map['messageIds'] as List<String>),
+        (map['messageIds'] as List),
       ),
     );
   }
@@ -160,4 +161,7 @@ class RoomModel extends DataModel<RoomModel> {
         allParticipants.hashCode ^
         messageIds.hashCode;
   }
+
+  
+ static  Map<String, bool> createIndex() => {"id": true};
 }

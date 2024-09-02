@@ -5,12 +5,14 @@ import 'package:collection/collection.dart';
 
 import 'package:mongo_chat_dart/src/models/dm_model.dart';
 import 'package:mongo_chat_dart/src/models/room_model.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
-abstract class DataModel<T> {
+abstract class DataModel {
   Map<String, dynamic> toMap();
+  static Map<String, bool> createIndex() => {};
 }
 
-class ChatUser extends DataModel<ChatUser> {
+class ChatUser extends DataModel {
   String id;
   String name;
   String? dpUrl;
@@ -22,7 +24,20 @@ class ChatUser extends DataModel<ChatUser> {
   List<String> dmRooms;
   List<String> rooms;
   ChatUser({
-    required this.id,
+    required this.name,
+    this.dpUrl,
+    this.bio,
+    this.phoneNo,
+    this.emailId,
+    this.lastSeen,
+    this.userName,
+    List<String>? dmRooms,
+    List<String>? rooms,
+  })  : id = ObjectId().oid,
+        dmRooms = dmRooms ?? [],
+        rooms = rooms ?? [];
+  ChatUser._internal({
+    String? id,
     required this.name,
     this.dpUrl,
     this.bio,
@@ -32,10 +47,9 @@ class ChatUser extends DataModel<ChatUser> {
     this.userName,
     required this.dmRooms,
     required this.rooms,
-  });
+  }) : id = id ?? ObjectId().oid;
 
   ChatUser copyWith({
-    String? id,
     String? name,
     String? dpUrl,
     String? bio,
@@ -47,7 +61,6 @@ class ChatUser extends DataModel<ChatUser> {
     List<String>? rooms,
   }) {
     return ChatUser(
-      id: id ?? this.id,
       name: name ?? this.name,
       dpUrl: dpUrl ?? this.dpUrl,
       bio: bio ?? this.bio,
@@ -76,7 +89,7 @@ class ChatUser extends DataModel<ChatUser> {
   }
 
   factory ChatUser.fromMap(Map<String, dynamic> map) {
-    return ChatUser(
+    return ChatUser._internal(
       id: map['id'] as String,
       name: map['name'] as String,
       dpUrl: map['dpUrl'] != null ? map['dpUrl'] as String : null,
@@ -88,10 +101,10 @@ class ChatUser extends DataModel<ChatUser> {
           : null,
       userName: map['userName'] != null ? map['userName'] as String : null,
       dmRooms: List<String>.from(
-        (map['dmRooms'] as List<String>),
+        (map['dmRooms'] as List),
       ),
       rooms: List<String>.from(
-        (map['rooms'] as List<String>),
+        (map['rooms'] as List),
       ),
     );
   }
@@ -136,4 +149,6 @@ class ChatUser extends DataModel<ChatUser> {
         dmRooms.hashCode ^
         rooms.hashCode;
   }
+
+  static Map<String, bool> createIndex() => {"id": true, "name": true};
 }

@@ -4,13 +4,13 @@ import 'dart:convert';
 class MessageDocument {
   String documentUrl;
   String documentExtension;
-  String previewDocumentUrl;
-  String previewDocumentExtension;
+  String? previewDocumentUrl;
+  String? previewDocumentExtension;
   MessageDocument({
     required this.documentUrl,
     required this.documentExtension,
-    required this.previewDocumentUrl,
-    required this.previewDocumentExtension,
+    this.previewDocumentUrl,
+    this.previewDocumentExtension,
   });
 
   MessageDocument copyWith({
@@ -41,8 +41,12 @@ class MessageDocument {
     return MessageDocument(
       documentUrl: map['documentUrl'] as String,
       documentExtension: map['documentExtension'] as String,
-      previewDocumentUrl: map['previewDocumentUrl'] as String,
-      previewDocumentExtension: map['previewDocumentExtension'] as String,
+      previewDocumentUrl: map['previewDocumentUrl'] != null
+          ? map['previewDocumentUrl'] as String
+          : null,
+      previewDocumentExtension: map['previewDocumentExtension'] != null
+          ? map['previewDocumentExtension'] as String
+          : null,
     );
   }
 
