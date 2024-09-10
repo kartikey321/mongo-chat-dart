@@ -18,7 +18,7 @@ class MessageReadByHelper {
     return await MessageReadByController(mongoConfig: _mongoConfig).getSingleDocument(readById);
   }
 
-  Stream<MessageReadBy> getReadByStream(String readById) {
+  Stream<MessageReadBy?> getReadByStream(String readById) {
     return MessageReadByController(mongoConfig: _mongoConfig).getSingleDocumentStream(readById);
   }
 

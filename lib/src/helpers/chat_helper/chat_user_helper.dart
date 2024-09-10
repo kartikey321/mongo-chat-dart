@@ -1,18 +1,12 @@
+import 'package:mongo_chat_dart/mongo_chat_dart.dart';
 import 'package:mongo_chat_dart/src/helpers/chat_helper/dm_model_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/chat_helper/room_model_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/controllers/controllers.dart';
-import 'package:mongo_chat_dart/src/helpers/mongo_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/mongo_setup.dart';
-import 'package:mongo_chat_dart/src/models/chat_user.dart';
-import 'package:mongo_chat_dart/src/models/data_filter.dart';
-import 'package:mongo_chat_dart/src/models/dm_model.dart';
-import 'package:mongo_chat_dart/src/models/room_model.dart';
-import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 class ChatUserHelper {
   final MongoConfig _mongoConfig;
 
-  // Constructor to initialize the mongoConfig
   ChatUserHelper(this._mongoConfig);
   Future<void> createIndex() async =>
       await ChatUserController(mongoConfig: _mongoConfig).createIndex();
@@ -21,7 +15,9 @@ class ChatUserHelper {
     return await ChatUserController(mongoConfig: _mongoConfig).getData();
   }
 
-  Future<String> addUser(ChatUser chatUser, ) async {
+  Future<String> addUser(
+    ChatUser chatUser,
+  ) async {
     return await ChatUserController(mongoConfig: _mongoConfig)
         .addData(chatUser, docId: chatUser.id);
   }
@@ -29,6 +25,27 @@ class ChatUserHelper {
   Future<ChatUser?> getChatUser(String userId) async {
     return await ChatUserController(mongoConfig: _mongoConfig)
         .getSingleDocument(userId);
+  }
+
+  Future<List<ChatUser>> getChatUserFromProps(
+      {String? email, String? userName}) async {
+    assert(!(email == null && userName == null),
+        'Atlease one of email or username should be not null');
+    return await ChatUserController(mongoConfig: _mongoConfig)
+        .getData(filters: [
+      DataFilterWrapper(filterType: DataFilterWrapperType.and, filters: [
+        if (email != null)
+          DataFilter(
+              fieldName: 'email',
+              value: email,
+              filterType: DataFilterType.isEqualTo),
+        if (userName != null)
+          DataFilter(
+              fieldName: 'userName',
+              value: email,
+              filterType: DataFilterType.isEqualTo),
+      ])
+    ]);
   }
 
   Future<List<ChatUser>> getUsers(List<String> userIds) async {
@@ -41,12 +58,8 @@ class ChatUserHelper {
         .getDataStreamFromIds(userIds);
   }
 
-  Future<void> addDmRoom(DmModel dmModel, String userId) async {
-    String id =
-        await DmModelController(mongoConfig: _mongoConfig).addData(dmModel,docId: dmModel.id);
-    var update = mongo.modify.push('dmRooms', id);
-    await ChatUserController(mongoConfig: _mongoConfig)
-        .updateData(update, userId);
+  Stream<List<ChatUser>> getAllUsersStream() {
+    return ChatUserController(mongoConfig: _mongoConfig).getDataStream();
   }
 
   Future<List<DmModel>> getDmChats(String userId) async {

@@ -54,7 +54,7 @@ class RoomModel extends DataModel {
   String id;
   String name;
   String createdBy;
-  String createdAt;
+  DateTime createdAt;
   List<String> admins;
   String description;
   List<String> allParticipants;
@@ -74,7 +74,7 @@ class RoomModel extends DataModel {
     String? id,
     String? name,
     String? createdBy,
-    String? createdAt,
+    DateTime? createdAt,
     List<String>? admins,
     String? description,
     List<String>? allParticipants,
@@ -98,7 +98,7 @@ class RoomModel extends DataModel {
       'id': id,
       'name': name,
       'createdBy': createdBy,
-      'createdAt': createdAt,
+      'createdAt': createdAt.toString(),
       'admins': admins,
       'description': description,
       'allParticipants': allParticipants,
@@ -111,7 +111,7 @@ class RoomModel extends DataModel {
       id: map['id'] as String,
       name: map['name'] as String,
       createdBy: map['createdBy'] as String,
-      createdAt: map['createdAt'] as String,
+      createdAt: DateTime.parse(map['createdAt'] as String),
       admins: List<String>.from(
         (map['admins'] as List),
       ),

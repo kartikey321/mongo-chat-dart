@@ -61,7 +61,7 @@ class RoomModelHelper {
         .getSingleDocument(id);
   }
 
-  Stream<RoomModel> getRoomStream(String id) {
+  Stream<RoomModel?> getRoomStream(String id) {
     return RoomModelController(mongoConfig: _mongoConfig)
         .getSingleDocumentStream(id);
   }

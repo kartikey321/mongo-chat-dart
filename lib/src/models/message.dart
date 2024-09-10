@@ -11,28 +11,27 @@ class Message extends DataModel {
   DateTime sentAt;
   MessageDocument? document;
   String? replyToMessageId;
-  ChatUser sentBy;
+  String sentBy;
   Message({
     required this.text,
-   
     required this.sentAt,
     this.replyToMessageId,
     required this.sentBy,
-  }):id =  ObjectId().oid;
+  }) : id = ObjectId().oid;
   Message._internal({
     required this.text,
     String? id,
     required this.sentAt,
     this.replyToMessageId,
     required this.sentBy,
-  }):id = id ?? ObjectId().oid;
+  }) : id = id ?? ObjectId().oid;
 
   Message copyWith({
     String? text,
     String? id,
     DateTime? sentAt,
     String? replyToMessageId,
-    ChatUser? sentBy,
+    String? sentBy,
   }) {
     return Message._internal(
       text: text ?? this.text,
@@ -50,7 +49,7 @@ class Message extends DataModel {
       'id': id,
       'sentAt': sentAt.toIso8601String(),
       'replyToMessageId': replyToMessageId,
-      'sentBy': sentBy.toMap(),
+      'sentBy': sentBy,
     };
   }
 
@@ -62,7 +61,7 @@ class Message extends DataModel {
       replyToMessageId: map['replyToMessageId'] != null
           ? map['replyToMessageId'] as String
           : null,
-      sentBy: ChatUser.fromMap(map['sentBy'] as Map<String, dynamic>),
+      sentBy: map['sentBy'] as String,
     );
   }
 
@@ -96,6 +95,5 @@ class Message extends DataModel {
         sentBy.hashCode;
   }
 
-  
   static Map<String, bool> createIndex() => {"id": true};
 }

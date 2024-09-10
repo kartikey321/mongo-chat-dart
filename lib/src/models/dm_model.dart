@@ -12,19 +12,18 @@ class DmModel extends DataModel {
   DateTime createdOn;
   List<String> messageIds;
   DmModel({
-  
     required this.participant1Id,
     required this.participant2Id,
     required this.createdOn,
-    required this.messageIds,
-  }):id =  ObjectId().oid;
+  })  : id = ObjectId().oid,
+        messageIds = [];
   DmModel._internal({
     String? id,
     required this.participant1Id,
     required this.participant2Id,
     required this.createdOn,
     required this.messageIds,
-  }):id = id ?? ObjectId().oid;
+  }) : id = id ?? ObjectId().oid;
 
   DmModel copyWith({
     String? id,
@@ -96,6 +95,5 @@ class DmModel extends DataModel {
         messageIds.hashCode;
   }
 
-  static
-  Map<String, bool> createIndex() => {"id": true};
+  static Map<String, bool> createIndex() => {"id": true};
 }

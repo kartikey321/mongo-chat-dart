@@ -4,6 +4,31 @@ import 'package:mongo_chat_dart/src/models/chat_user.dart';
 import 'package:mongo_chat_dart/src/models/data_filter.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
+class RangeParam {
+  int? lowerBound;
+  int? upperBound;
+  RangeParam({this.lowerBound, this.upperBound})
+      :
+        // Assert that lowerBound, if not null, is positive
+        assert(lowerBound == null || lowerBound >= 0,
+            'lowerBound should be positive or null'),
+
+        // Assert that upperBound, if not null, is positive
+        assert(upperBound == null || upperBound >= 0,
+            'upperBound should be positive or null'),
+
+        // Assert that if both are not null, lowerBound is less than upperBound
+        assert(
+            lowerBound == null || upperBound == null || lowerBound < upperBound,
+            'lowerBound should be less than upperBound when both are not null');
+}
+
+class SortParam {
+  String field;
+  bool descending;
+  SortParam({required this.field, this.descending = false});
+}
+
 /// A generic controller for managing data models with MongoDB.
 ///
 /// This controller provides basic CRUD operations (Create, Read, Update, Delete) for a generic data model [T].
@@ -54,9 +79,11 @@ class GenericDataController<T extends DataModel> {
   ///
   /// The [data] parameter is an instance of [T] to be added to the collection.
   /// Returns a [String] representing the ObjectId of the newly added document.
-  Future<String> addData(T data,{required String docId}) async {
+  Future<String> addData(T data, {required String docId}) async {
     try {
-      mongo.ObjectId fieldKey =docId!=null?mongo.ObjectId.fromHexString(docId): mongo.ObjectId();
+      mongo.ObjectId fieldKey = docId != null
+          ? mongo.ObjectId.fromHexString(docId)
+          : mongo.ObjectId();
       var dataMap = data.toMap();
       dataMap['_id'] = fieldKey;
       await mongoHelper.addData(collectionName, dataMap);
@@ -83,10 +110,13 @@ class GenericDataController<T extends DataModel> {
   ///
   /// The [filters] parameter is an optional list of [DataFilterWrapper] objects to filter results.
   /// Returns a [Future] list of [T] representing the matching documents.
-  Future<List<T>> getData({List<DataFilterWrapper>? filters}) async {
+  Future<List<T>> getData(
+      {List<DataFilterWrapper>? filters,
+      SortParam? sort,
+      RangeParam? range}) async {
     try {
       return mongoHelper
-          .getData(collectionName, filters: filters)
+          .getData(collectionName, filters: filters, sort: sort, range: range)
           .then((value) => value.map((e) => fromMap(e)).toList());
     } catch (e) {
       print('Failed to retrieve data from $collectionName: $e');
@@ -142,9 +172,12 @@ class GenericDataController<T extends DataModel> {
   ///
   /// The [filters] parameter is an optional list of [DataFilterWrapper] objects to filter results.
   /// Returns a [Stream] of lists of [T] representing the matching documents.
-  Stream<List<T>> getDataStream({List<DataFilterWrapper>? filters}) {
+  Stream<List<T>> getDataStream(
+      {List<DataFilterWrapper>? filters, SortParam? sort, RangeParam? range}) {
     return _convertStream(
-        mongoHelper.getDataStream(collectionName, filters: filters), fromMap);
+        mongoHelper.getDataStream(collectionName,
+            filters: filters, sort: sort, range: range),
+        fromMap);
   }
 
   /// Retrieves a single document from the collection by its ID.
@@ -166,10 +199,10 @@ class GenericDataController<T extends DataModel> {
   ///
   /// The [docId] parameter is the ID of the document to retrieve.
   /// Returns a [Stream] of [T] representing the matching document.
-  Stream<T> getSingleDocumentStream(String docId) {
+  Stream<T?> getSingleDocumentStream(String docId) {
     return mongoHelper
         .getSingleDocumentStream(collectionName, docId)
-        .map((data) => fromMap(data));
+        .map((data) => data != null ? fromMap(data) : null);
   }
 
   /// Deletes a document from the collection by its ID.

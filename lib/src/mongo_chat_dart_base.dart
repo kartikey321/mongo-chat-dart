@@ -1,5 +1,3 @@
-// TODO: Put public facing types in this file.
-
 import 'package:mongo_chat_dart/src/helpers/chat_helper/chat_user_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/chat_helper/dm_model_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/chat_helper/message_helper.dart';
@@ -27,6 +25,10 @@ class MongoChatDart {
     await _message.createIndex();
     await _readBy.createIndex();
     await _roomModel.createIndex();
+  }
+
+  dropDatabase() async {
+    await _mongoConfig?.getInstance().drop();
   }
 
   // Helper instance variables
