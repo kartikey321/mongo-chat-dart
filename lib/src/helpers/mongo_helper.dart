@@ -1,3 +1,7 @@
+// This file is part of the mongo_chat_dart package.
+// 
+// Licensed under the BSD 3-Clause License. See the LICENSE file in the root directory
+// of this source tree for more information.
 import 'package:mongo_chat_dart/src/helpers/data_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/mongo_setup.dart';
 import 'package:mongo_chat_dart/src/models/data_filter.dart';
@@ -15,10 +19,11 @@ class MongoHelper {
 
   /// Processes filters, sort parameters, and range limitations for MongoDB queries.
   /// This method generates a MongoDB query selector based on provided filters, sort parameters, and range.
+  // ignore: non_constant_identifier_names
   SelectorBuilder? _processFilters_Sort_limit(
       {List<BasicDataFilter>? filters, SortParam? sort, RangeParam? range}) {
     /// Helper method to merge multiple selector builders based on [DataFilterWrapperType].
-    SelectorBuilder? _processBuilders(
+    SelectorBuilder? processBuilders(
             {required List<SelectorBuilder?> builders,
             required DataFilterWrapperType type}) =>
         builders.isEmpty
@@ -35,7 +40,7 @@ class MongoHelper {
                         });
 
     /// Processes individual filters based on their types and builds the selector accordingly.
-    SelectorBuilder? _processFilters(
+    SelectorBuilder? processFilters(
         List<BasicDataFilter> filters, DataFilterWrapperType type,
         {SelectorBuilder? selectorBuilder}) {
       List<SelectorBuilder?> builders = [];
@@ -48,7 +53,7 @@ class MongoHelper {
       if (filters.every((e) => e is DataFilterWrapper)) {
         for (var e in filters) {
           if (e is DataFilterWrapper) {
-            builders.add(_processFilters(e.filters, e.filterType));
+            builders.add(processFilters(e.filters, e.filterType));
           }
         }
       }
@@ -73,7 +78,7 @@ class MongoHelper {
       }
       // Remove null builders
       builders.removeWhere((element) => element == null);
-      return _processBuilders(builders: builders, type: type);
+      return processBuilders(builders: builders, type: type);
     }
 
     // Initialize list of builders
@@ -81,7 +86,7 @@ class MongoHelper {
 
     // Process filters, if provided
     if (filters != null) {
-      builders.add(_processFilters(filters, DataFilterWrapperType.and));
+      builders.add(processFilters(filters, DataFilterWrapperType.and));
     }
 
     // Apply sorting if provided
@@ -101,7 +106,7 @@ class MongoHelper {
 
     // Return the processed filter
     var processedFilter =
-        _processBuilders(builders: builders, type: DataFilterWrapperType.and);
+        processBuilders(builders: builders, type: DataFilterWrapperType.and);
     return processedFilter;
   }
 
@@ -156,7 +161,7 @@ class MongoHelper {
     if (sort != null) {
       if (processedFilter != null) {
         processedFilter =
-            processedFilter!.sortBy(sort.field, descending: sort.descending);
+            processedFilter.sortBy(sort.field, descending: sort.descending);
       }
     }
     return await _db.collection(collectionName).find(processedFilter).toList();

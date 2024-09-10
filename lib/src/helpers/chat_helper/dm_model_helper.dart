@@ -1,9 +1,10 @@
-import 'package:mongo_chat_dart/src/helpers/chat_helper/chat_user_helper.dart';
+// This file is part of the mongo_chat_dart package.
+// 
+// Licensed under the BSD 3-Clause License. See the LICENSE file in the root directory
+// of this source tree for more information.
 import 'package:mongo_chat_dart/src/helpers/chat_helper/message_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/controllers/controllers.dart';
-import 'package:mongo_chat_dart/src/helpers/mongo_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/mongo_setup.dart';
-import 'package:mongo_chat_dart/src/models/chat_user.dart';
 import 'package:mongo_chat_dart/src/models/dm_model.dart';
 import 'package:mongo_chat_dart/src/models/message.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
@@ -18,7 +19,7 @@ class DMModelHelper {
       await DmModelController(mongoConfig: _mongoConfig).createIndex();
 
   Future<void> createDmRoom(DmModel dmModel) async {
-    var data = await DmModelController(mongoConfig: _mongoConfig)
+    await DmModelController(mongoConfig: _mongoConfig)
         .addData(dmModel, docId: dmModel.id);
     var update = mongo.modify.push('dmRooms', dmModel.id);
     await Future.wait([

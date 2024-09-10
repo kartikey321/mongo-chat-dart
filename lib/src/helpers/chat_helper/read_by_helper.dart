@@ -1,5 +1,8 @@
+// This file is part of the mongo_chat_dart package.
+// 
+// Licensed under the BSD 3-Clause License. See the LICENSE file in the root directory
+// of this source tree for more information.
 import 'package:mongo_chat_dart/src/helpers/controllers/controllers.dart';
-import 'package:mongo_chat_dart/src/helpers/mongo_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/mongo_setup.dart';
 import 'package:mongo_chat_dart/src/models/message_read_by.dart';
 import 'package:mongo_chat_dart/src/models/readby.dart';

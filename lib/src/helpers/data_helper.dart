@@ -1,3 +1,7 @@
+// This file is part of the mongo_chat_dart package.
+//
+// Licensed under the BSD 3-Clause License. See the LICENSE file in the root directory
+// of this source tree for more information.
 import 'package:mongo_chat_dart/src/helpers/mongo_helper.dart';
 import 'package:mongo_chat_dart/src/helpers/mongo_setup.dart';
 import 'package:mongo_chat_dart/src/models/chat_user.dart';
@@ -79,7 +83,7 @@ class GenericDataController<T extends DataModel> {
   ///
   /// The [data] parameter is an instance of [T] to be added to the collection.
   /// Returns a [String] representing the ObjectId of the newly added document.
-  Future<String> addData(T data, {required String docId}) async {
+  Future<String> addData(T data, {String? docId}) async {
     try {
       mongo.ObjectId fieldKey = docId != null
           ? mongo.ObjectId.fromHexString(docId)

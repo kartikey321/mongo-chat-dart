@@ -1,10 +1,12 @@
+// This file is part of the mongo_chat_dart package.
+// 
+// Licensed under the BSD 3-Clause License. See the LICENSE file in the root directory
+// of this source tree for more information.
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
 
-import 'package:mongo_chat_dart/src/models/dm_model.dart';
-import 'package:mongo_chat_dart/src/models/room_model.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 abstract class DataModel {
@@ -73,6 +75,7 @@ class ChatUser extends DataModel {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,

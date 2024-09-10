@@ -1,18 +1,25 @@
 name: mongo_chat_dart
-description: A starting point for Dart libraries or applications.
+description: A Dart package to simplify creating and managing chat systems with MongoDB.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/kartikey321/mongo-chat-dart.git
+homepage: https://github.com/kartikey321/mongo-chat-dart
+license: BSD-3-Clause
 
 environment:
   sdk: ^3.5.1
 
-# Add regular dependencies here.
 dependencies:
   mongo_dart: ^0.10.3
-
-  # path: ^1.8.0
+  collection: ^1.19.0
 
 dev_dependencies:
   lints: ^4.0.0
   mockito: ^5.4.4
   test: ^1.25.8
+
+topics:
+  - chat
+  - mongodb
+  - realtime
+  - messaging
+  - dart
