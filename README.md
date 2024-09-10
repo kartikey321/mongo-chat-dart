@@ -98,7 +98,7 @@ mongoChatDart.dmModel.getDmRoomsStream([dmRoom.id]).listen((dmRooms) {
 
 ## 📚 Documentation
 
-For more detailed information on how to use MongoChatDart, please refer to our [API documentation](link_to_your_documentation).
+For more detailed information on how to use MongoChatDart, please refer to our [API documentation](example/mongo_chat_dart_example.dart).
 
 ## 🗺️ Roadmap
 
@@ -113,15 +113,15 @@ We're constantly working to improve MongoChatDart. Here are some features we're 
 
 ## 🤝 Contributing
 
-We welcome contributions to MongoChatDart! Please see our [contributing guidelines](link_to_contributing_guidelines) for more information on how to get involved.
+We welcome contributions to MongoChatDart! Please see our [contributing guidelines](contribution.md) for more information on how to get involved.
 
 ## 📄 License
 
-MongoChatDart is released under the [MIT License](link_to_license).
+MongoChatDart is released under the [BSD 3-Clause License](LICENSE).
 
 ## 🆘 Support
 
-If you encounter any issues or have questions about using MongoChatDart, please [open an issue](link_to_issues_page) on our GitHub repository.
+If you encounter any issues or have questions about using MongoChatDart, please [open an issue](https://github.com/kartikey321/mongo-chat-dart/issues) on our GitHub repository.
 
 ---
 
