@@ -73,7 +73,7 @@ await mongoChatDart.dmModel.createDmRoom(dmRoom);
 4. Send a message:
 
 ```dart
-final message = Message(
+final message = ChatMessage(
   text: 'Hello!',
   sentAt: DateTime.now(),
   sentBy: user1.id,

@@ -1,9 +1,9 @@
 // This file is part of the mongo_chat_dart package.
-// 
+//
 // Licensed under the BSD 3-Clause License. See the LICENSE file in the root directory
 // of this source tree for more information.
-import 'package:test/test.dart';
 import 'package:mongo_chat_dart/mongo_chat_dart.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('MongoChatDart Tests', () {
@@ -12,7 +12,8 @@ void main() {
     setUp(() async {
       // Initialize with a test database.
       mongoChatDart = MongoChatDart();
-      await mongoChatDart.initialize('mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/test2');
+      await mongoChatDart.initialize(
+          'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/test2');
     });
 
     tearDown(() async {
@@ -22,8 +23,10 @@ void main() {
 
     test('should create users successfully', () async {
       final user1 = ChatUser(
-        name: 'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
-        userName: 'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
+        name:
+            'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
+        userName:
+            'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
         emailId: 'alice@example.com',
         bio: 'Tech enthusiast',
         phoneNo: '+1234567890',
@@ -37,15 +40,19 @@ void main() {
 
     test('should create DM room successfully', () async {
       final user1 = ChatUser(
-        name: 'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
-        userName: 'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
+        name:
+            'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
+        userName:
+            'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
         emailId: 'alice@example.com',
         bio: 'Tech enthusiast',
         phoneNo: '+1234567890',
       );
       final user2 = ChatUser(
-        name: 'Bob Johnson ${DateTime.now().millisecondsSinceEpoch}', // Unique name
-        userName: 'bob_${DateTime.now().millisecondsSinceEpoch}', // Unique username
+        name:
+            'Bob Johnson ${DateTime.now().millisecondsSinceEpoch}', // Unique name
+        userName:
+            'bob_${DateTime.now().millisecondsSinceEpoch}', // Unique username
         emailId: 'bob@example.com',
         bio: 'Sports fan',
         phoneNo: '+0987654321',
@@ -70,15 +77,19 @@ void main() {
 
     test('should send message successfully', () async {
       final user1 = ChatUser(
-        name: 'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
-        userName: 'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
+        name:
+            'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
+        userName:
+            'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
         emailId: 'alice@example.com',
         bio: 'Tech enthusiast',
         phoneNo: '+1234567890',
       );
       final user2 = ChatUser(
-        name: 'Bob Johnson ${DateTime.now().millisecondsSinceEpoch}', // Unique name
-        userName: 'bob_${DateTime.now().millisecondsSinceEpoch}', // Unique username
+        name:
+            'Bob Johnson ${DateTime.now().millisecondsSinceEpoch}', // Unique name
+        userName:
+            'bob_${DateTime.now().millisecondsSinceEpoch}', // Unique username
         emailId: 'bob@example.com',
         bio: 'Sports fan',
         phoneNo: '+0987654321',
@@ -93,13 +104,14 @@ void main() {
       );
       await mongoChatDart.dmModel.createDmRoom(dmRoom);
 
-      final message = Message(
+      final message = ChatMessage(
         text: 'Hey Bob, how are you?',
         sentAt: DateTime.now(),
         sentBy: user1.id,
       );
       await mongoChatDart.dmModel.addMessage(message, dmRoom.id);
-final updatedDmRoom = await mongoChatDart.dmModel.getDmRooms([dmRoom.id]).then((val)=>val.first);
+      final updatedDmRoom = await mongoChatDart.dmModel
+          .getDmRooms([dmRoom.id]).then((val) => val.first);
       final messages =
           await mongoChatDart.message.getMessages(updatedDmRoom.messageIds);
       expect(messages.length, 1);
@@ -108,15 +120,19 @@ final updatedDmRoom = await mongoChatDart.dmModel.getDmRooms([dmRoom.id]).then((
 
     test('should stream messages in real time', () async {
       final user1 = ChatUser(
-        name: 'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
-        userName: 'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
+        name:
+            'Alice Smith ${DateTime.now().millisecondsSinceEpoch}', // Unique name
+        userName:
+            'alice_${DateTime.now().millisecondsSinceEpoch}', // Unique username
         emailId: 'alice@example.com',
         bio: 'Tech enthusiast',
         phoneNo: '+1234567890',
       );
       final user2 = ChatUser(
-        name: 'Bob Johnson ${DateTime.now().millisecondsSinceEpoch}', // Unique name
-        userName: 'bob_${DateTime.now().millisecondsSinceEpoch}', // Unique username
+        name:
+            'Bob Johnson ${DateTime.now().millisecondsSinceEpoch}', // Unique name
+        userName:
+            'bob_${DateTime.now().millisecondsSinceEpoch}', // Unique username
         emailId: 'bob@example.com',
         bio: 'Sports fan',
         phoneNo: '+0987654321',
@@ -131,7 +147,7 @@ final updatedDmRoom = await mongoChatDart.dmModel.getDmRooms([dmRoom.id]).then((
       );
       await mongoChatDart.dmModel.createDmRoom(dmRoom);
 
-      final message = Message(
+      final message = ChatMessage(
         text: 'Hey Bob, how are you?',
         sentAt: DateTime.now(),
         sentBy: user1.id,

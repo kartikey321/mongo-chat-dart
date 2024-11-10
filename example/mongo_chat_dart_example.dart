@@ -33,7 +33,7 @@ void main() async {
   await mongoChatDart.chatUser.addUser(user2);
   await mongoChatDart.chatUser.addUser(user3);
 
-  // Create a DM (Direct Message) room
+  // Create a DM (Direct ChatMessage) room
   final dmRoom = DmModel(
     participant1Id: user1.id,
     participant2Id: user2.id,
@@ -43,7 +43,7 @@ void main() async {
   await mongoChatDart.dmModel.createDmRoom(dmRoom);
 
   // Send messages in the DM room
-  final dmMessage1 = Message(
+  final dmMessage1 = ChatMessage(
     text: 'Hey Bob, how are you?',
     sentAt: DateTime.now(),
     sentBy: user1.id,
@@ -51,7 +51,7 @@ void main() async {
 
   await mongoChatDart.dmModel.addMessage(dmMessage1, dmRoom.id);
 
-  final dmMessage2 = Message(
+  final dmMessage2 = ChatMessage(
     text: 'Hi Alice! I\'m doing great, thanks for asking.',
     sentAt: DateTime.now(),
     sentBy: user2.id,
@@ -75,7 +75,7 @@ void main() async {
   await mongoChatDart.roomModel.createRoom(groupRoom);
 
   // Send messages in the group chat room
-  final groupMessage1 = Message(
+  final groupMessage1 = ChatMessage(
     text: 'Welcome to the Tech Talk group!',
     sentAt: DateTime.now(),
     sentBy: user1.id,
@@ -83,7 +83,7 @@ void main() async {
 
   await mongoChatDart.roomModel.addMessage(groupMessage1, groupRoom.id);
 
-  final groupMessage2 = Message(
+  final groupMessage2 = ChatMessage(
     text: 'Thanks for having me! Excited to discuss tech.',
     sentAt: DateTime.now(),
     sentBy: user3.id,
@@ -92,7 +92,7 @@ void main() async {
   await mongoChatDart.roomModel.addMessage(groupMessage2, groupRoom.id);
 
   // Send a message with a document in the group chat
-  final groupMessage3 = Message(
+  final groupMessage3 = ChatMessage(
     text: 'Check out this article on AI advancements!',
     sentAt: DateTime.now(),
     sentBy: user2.id,
@@ -120,9 +120,13 @@ void main() async {
         await mongoChatDart.message.getMessages(dmRooms[0].messageIds);
     print('Messages in the DM room:');
     for (var msg in messages) {
-      print('${msg.sentBy}: ${msg.text}');
-      if (msg.replyToMessageId != null) {
-        print('  (Reply to: ${msg.replyToMessageId})');
+      if (msg is ChatMessage) {
+        print('${msg.sentBy}: ${msg.text}');
+        if (msg.replyToMessageId != null) {
+          print('  (Reply to: ${msg.replyToMessageId})');
+        }
+      } else {
+        print('${msg.id}: ${msg.text}');
       }
     }
   }
@@ -134,9 +138,13 @@ void main() async {
         await mongoChatDart.roomModel.getMessages(groupRooms[0].id);
     print('\nMessages in the group chat room:');
     for (var msg in messages) {
-      print('${msg.sentBy}: ${msg.text}');
-      if (msg.document != null) {
-        print('  (Document: ${msg.document!.documentUrl})');
+      if (msg is ChatMessage) {
+        print('${msg.sentBy}: ${msg.text}');
+        if (msg.replyToMessageId != null) {
+          print('  (Reply to: ${msg.replyToMessageId})');
+        }
+      } else {
+        print('${msg.id}: ${msg.text}');
       }
     }
   }
@@ -145,13 +153,20 @@ void main() async {
   print('\nStreaming group chat messages:');
   mongoChatDart.roomModel.getMessagesStream(groupRoom.id).listen((messages) {
     for (var msg in messages) {
-      print('${msg.sentBy}: ${msg.text}');
+      if (msg is ChatMessage) {
+        print('${msg.sentBy}: ${msg.text}');
+        if (msg.replyToMessageId != null) {
+          print('  (Reply to: ${msg.replyToMessageId})');
+        }
+      } else {
+        print('${msg.id}: ${msg.text}');
+      }
     }
   });
 
   // Send another message to the group chat (this will be picked up by the stream)
   await Future.delayed(Duration(seconds: 2));
-  final groupMessage4 = Message(
+  final groupMessage4 = ChatMessage(
     text: 'This message should appear in the group chat stream.',
     sentAt: DateTime.now(),
     sentBy: user3.id,
